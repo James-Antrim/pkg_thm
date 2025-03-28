@@ -1,0 +1,19 @@
+# IDE Generated Files #
+#######################
+.buildpath
+.project
+.settings
+.idea
+nbproject/
+atlassian-ide-plugin.xml
+
+# OS Generated Files #
+######################
+Thumbs.db
+.*~
+.directory
+
+# Specific Local Files #
+########################
+/examples
+/examples/*

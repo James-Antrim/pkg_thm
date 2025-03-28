@@ -1,0 +1,22 @@
+<updates>
+    <update>
+        <name>THM Contact - Contact Information Module</name>
+        <description>This module displays contact information.</description>
+        <maintainer>James Antrim</maintainer>
+        <maintainerurl>https://www.thm.de/organizer</maintainerurl>
+        <version>5.0.1</version>
+        <infourl title="THM Homepage">https://www.thm.de/site</infourl>
+        <tags>
+            <tag>stable</tag>
+        </tags>
+        <targetplatform name="joomla" version="5.[0123456789]"/>
+        <element>mod_thmcontact</element>
+        <type>module</type>
+        <client>site</client>
+        <downloads>
+            <downloadurl type="full" format="zip">
+                https://github.com/James-Antrim/mod_thmcontact/raw/main/updates/mod_thmcontact_501.zip
+            </downloadurl>
+        </downloads>
+    </update>
+</updates>

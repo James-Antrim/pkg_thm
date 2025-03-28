@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" client="site" method="upgrade">
+    <name>mod_contact</name>
+    <author>James Antrim</author>
+    <authorEmail>james.antrim@nm.thm.de</authorEmail>
+    <authorUrl>www.thm.de</authorUrl>
+    <creationDate>March 2025</creationDate>
+    <copyright>TH Mittelhessen 2025</copyright>
+    <licence>GNU GPL v.3</licence>
+    <version>5.0.1</version>
+    <description>MOD_CONTACT_DESC</description>
+    <namespace path="src">THM\Module\Contact</namespace>
+    <files>
+        <folder module="mod_contact">services</folder>
+        <folder>src</folder>
+    </files>
+    <languages folder="language">
+        <language tag="en-GB">en-GB/mod_contact.sys.ini</language>
+        <language tag="de-DE">de-DE/mod_contact.sys.ini</language>
+    </languages>
+    <config>
+        <fields name="params">
+            <fieldset name="advanced">
+                <field label="JFIELD_ALT_LAYOUT_LABEL" description="JFIELD_ALT_MODULE_LAYOUT_DESC"/>
+                <field name="layout" type="modulelayout" label="JFIELD_ALT_LAYOUT_LABEL" class="form-select"
+                       validate="moduleLayout"/>
+                <field name="moduleclass_sfx" type="textarea" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" rows="3"
+                       validate="CssIdentifier"/>
+                <field name="cache" type="list" label="COM_MODULES_FIELD_CACHING_LABEL" default="1" filter="integer"
+                       validate="options">
+                    <option value="1">JGLOBAL_USE_GLOBAL</option>
+                    <option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+                </field>
+                <field name="cache_time" type="number" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" default="900" filter="integer"/>
+            </fieldset>
+        </fields>
+    </config>
+    <updateservers>
+        <server type="extension" name="THM Extensions Update Site" priority="1">
+            https://github.com/James-Antrim/pkg_thm/raw/main/update.xml
+        </server>
+    </updateservers>
+</extension>
+
