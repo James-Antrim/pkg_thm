@@ -57,7 +57,7 @@ return new class () implements InstallerScriptInterface {
     /** @inheritDoc */
     public function postflight(string $type, InstallerAdapter $adapter): bool
     {
-        $db    = $adapter->getDatabase();
+        $db    = $adapter->__get('db');
         $query = $db->getQuery(true);
         $query->update($db->qn('#__modules'))
             ->set($db->qn('module') . ' = ' . $db->q('mod_contact'))

@@ -11,7 +11,7 @@
 namespace THM\Module\Contact\Site\Helper;
 
 use Joomla\CMS\Table\{Category, Content};
-use Joomla\Database\{DatabaseAwareInterface, DatabaseAwareTrait, DatabaseDriver, ParameterType};
+use Joomla\Database\{DatabaseAwareInterface, DatabaseAwareTrait, DatabaseDriver};
 use Joomla\CMS\Application\SiteApplication;
 
 class ContactHelper implements DatabaseAwareInterface
@@ -111,58 +111,46 @@ class ContactHelper implements DatabaseAwareInterface
      */
     public function resolve(array $contacts): array
     {
-        $names  = array_map('trim', array_filter(explode(',', $contacts[1]), function($a){return !is_numeric($a);}));
-        $ids    = array_map('trim', array_filter(explode(',', $contacts[1]), function($a){return is_numeric($a);}));
+        $ids    = array_map('trim', array_filter(explode(',', $contacts[1]), function ($a) { return is_numeric($a); }));
+        $names  = array_map('trim', array_filter(explode(',', $contacts[1]), function ($a) { return !is_numeric($a); }));
+        $return = [];
 
-        if ($names || $ids)
-        {
-            $db         = $this->getDatabase();
-            $language   = $db->qn('language');
-            $order      = array_map('trim', explode(',', $contacts[1]));
-            $tag        = $db->q($this->app->getLanguage()->getTag());
+        if ($names or $ids) {
+            $db       = $this->getDatabase();
+            $language = $db->qn('language');
+            $order    = array_map('trim', explode(',', $contacts[1]));
+            $tag      = $db->q($this->app->getLanguage()->getTag());
 
             $query = $db->getQuery(true);
             $query->select('*')->from($db->qn('#__contact_details'))
                 ->where($db->qn('published') . ' = 1')
                 ->where("($language = '*' OR $language = $tag)");
 
-            if ($ids)
-            {
-                $query->where($db->quoteName('id')
-                    . ' IN ' . '(' . implode(",", $ids) . ')', ($names) ? 'OR' : 'AND');
+            if ($ids) {
+                $query->where($db->qn('id') . ' IN ' . '(' . implode(',', $ids) . ')', ($names) ? 'OR' : 'AND');
             }
 
-            if ($names)
-            {
-                $condition = $db->quoteName('name')
-                    . ' IN ' . '(' . implode(",", array_map(function($nms){return '"' . $nms . '"';}, $names)) . ')';
-
+            if ($names) {
+                $names     = implode(",", array_map(function ($nms) { return '"' . $nms . '"'; }, $names));
+                $condition = $db->qn('name') . ' IN ' . '(' . $names . ')';
                 ($ids) ? $query->orWhere($condition) : $query->where($condition);
             }
 
             $db->setQuery($query);
 
-            if ($results = $db->loadObjectList())
-            {
-                $result = array();
-                
-                // Reorder the results
-                foreach ($order as $contact)
-                {
+            if ($results = $db->loadObjectList()) {
+                foreach ($order as $contact) {
                     $key = (is_numeric($contact))
                         ? array_search((int) $contact, array_column($results, 'id'))
                         : array_search($contact, array_column($results, 'name'));
 
-                    if ($key !== false)
-                    {
-                        $result[] = $results[$key];
+                    if ($key !== false) {
+                        $return[] = $results[$key];
                     }
                 }
-
-                return $result;
             }
         }
 
-        return array();
+        return $return;
     }
 }
