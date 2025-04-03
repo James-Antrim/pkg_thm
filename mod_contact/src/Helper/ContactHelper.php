@@ -105,27 +105,66 @@ class ContactHelper implements DatabaseAwareInterface
     /**
      * Resolves pattern matches to contacts.
      *
-     * @param   string[]  $contacts  the text matches to resolve to contacts
+     * @param   array  $contacts  the text matches to resolve to contacts
      *
      * @return array
      */
     public function resolve(array $contacts): array
     {
-        $contacts = array_map('trim', $contacts);
-        $db       = $this->getDatabase();
-        $language = $db->qn('language');
-        $order    = "FIELD('" . implode("','", $contacts) . "')";
-        $tag      = $db->q($this->app->getLanguage()->getTag());
+        $names  = array_map('trim', array_filter(explode(',', $contacts[1]), function($a){return !is_numeric($a);}));
+        $ids    = array_map('trim', array_filter(explode(',', $contacts[1]), function($a){return is_numeric($a);}));
 
-        $query = $db->getQuery(true);
-        $query->select('*')->from($db->qn('#__contact_details'))
-            ->where($db->qn('published') . ' = 1')
-            ->whereIn($db->qn('name'), $contacts, ParameterType::STRING)
-            ->where("($language = '*' OR $language = $tag)")
-            ->order($order);
+        if (!empty($names) || !empty($ids))
+        {
+            $db         = $this->getDatabase();
+            $language   = $db->qn('language');
+            $order      = array_map('trim', explode(',', $contacts[1]));
+            $tag        = $db->q($this->app->getLanguage()->getTag());
 
-        $db->setQuery($query);
+            $query = $db->getQuery(true);
+            $query->select('*')->from($db->qn('#__contact_details'))
+                ->where($db->qn('published') . ' = 1')
+                ->where("($language = '*' OR $language = $tag)");
 
-        return $db->loadObjectList() ?: [];
+            if (!empty($ids))
+            {
+                $query->where($db->quoteName('id')
+                    . ' IN ' . '(' . implode(",", $ids) . ')', (!empty($names)) ? 'OR' : 'AND');
+            }
+
+            if (!empty($names))
+            {
+                $contition = $db->quoteName('name')
+                    . ' IN ' . '(' . implode(",", array_map(function($nms){return '"' . $nms . '"';}, $names)) . ')';
+
+                (!empty($ids)) ? $query->orWhere($contition) : $query->where($contition);
+            }
+
+            $db->setQuery($query);
+
+            $results = $db->loadObjectList();
+
+            if (!empty($results))
+            {
+                $result = array();
+                
+                // Reorder the results
+                foreach ($order as $contact)
+                {
+                    $key = (is_numeric($contact))
+                        ? array_search((int) $contact, array_column($results, 'id'))
+                        : array_search($contact, array_column($results, 'name'));
+
+                    if ($key !== false)
+                    {
+                        array_push($result, $results[$key]);
+                    }
+                }
+
+                return $result;
+            }
+        }
+
+        return array();
     }
 }
