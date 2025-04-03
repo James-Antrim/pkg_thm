@@ -114,7 +114,7 @@ class ContactHelper implements DatabaseAwareInterface
         $names  = array_map('trim', array_filter(explode(',', $contacts[1]), function($a){return !is_numeric($a);}));
         $ids    = array_map('trim', array_filter(explode(',', $contacts[1]), function($a){return is_numeric($a);}));
 
-        if (!empty($names) || !empty($ids))
+        if ($names || $ids)
         {
             $db         = $this->getDatabase();
             $language   = $db->qn('language');
@@ -126,25 +126,23 @@ class ContactHelper implements DatabaseAwareInterface
                 ->where($db->qn('published') . ' = 1')
                 ->where("($language = '*' OR $language = $tag)");
 
-            if (!empty($ids))
+            if ($ids)
             {
                 $query->where($db->quoteName('id')
-                    . ' IN ' . '(' . implode(",", $ids) . ')', (!empty($names)) ? 'OR' : 'AND');
+                    . ' IN ' . '(' . implode(",", $ids) . ')', ($names) ? 'OR' : 'AND');
             }
 
-            if (!empty($names))
+            if ($names)
             {
-                $contition = $db->quoteName('name')
+                $condition = $db->quoteName('name')
                     . ' IN ' . '(' . implode(",", array_map(function($nms){return '"' . $nms . '"';}, $names)) . ')';
 
-                (!empty($ids)) ? $query->orWhere($contition) : $query->where($contition);
+                ($ids) ? $query->orWhere($condition) : $query->where($condition);
             }
 
             $db->setQuery($query);
 
-            $results = $db->loadObjectList();
-
-            if (!empty($results))
+            if ($results = $db->loadObjectList())
             {
                 $result = array();
                 
@@ -157,7 +155,7 @@ class ContactHelper implements DatabaseAwareInterface
 
                     if ($key !== false)
                     {
-                        array_push($result, $results[$key]);
+                        $result[] = $results[$key];
                     }
                 }
 
