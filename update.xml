@@ -2,8 +2,9 @@
     <update>
         <name>THM Contact - Contact Information Module</name>
         <description>This module displays contact information.</description>
-        <maintainer>James Antrim</maintainer>
-        <maintainerurl>https://www.thm.de/organizer</maintainerurl>
+        <maintainer>THM - Referat Neue Medien</maintainer>
+        <maintainerurl>www.thm.de</maintainerurl>
+        <authorEmail>webredaktion@thm.de</authorEmail>
         <version>5.0.2</version>
         <infourl title="THM Homepage">https://www.thm.de/site</infourl>
         <tags>
