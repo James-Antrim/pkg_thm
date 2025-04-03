@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="module" client="site" method="upgrade">
     <name>mod_contact</name>
-    <author>James Antrim</author>
-    <authorEmail>james.antrim@nm.thm.de</authorEmail>
+    <author>THM - Referat Neue Medien</author>
+    <authorEmail>webredaktion@thm.de</authorEmail>
     <authorUrl>www.thm.de</authorUrl>
     <creationDate>March 2025</creationDate>
     <copyright>TH Mittelhessen 2025</copyright>

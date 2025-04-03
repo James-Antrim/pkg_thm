@@ -15,7 +15,7 @@
         <client>site</client>
         <downloads>
             <downloadurl type="full" format="zip">
-                https://github.com/James-Antrim/mod_thmcontact/raw/main/updates/mod_thmcontact_501.zip
+                https://github.com/James-Antrim/mod_thmcontact/raw/main/updates/mod_contact_501.zip
             </downloadurl>
         </downloads>
     </update>

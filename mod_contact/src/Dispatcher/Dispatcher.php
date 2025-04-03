@@ -2,64 +2,54 @@
 /**
  * @package     THM
  * @extension   mod_contact
- * @author      James Antrim, <james.antrim@nm.thm.de>
+ * @author      THM - Referat Neue Medien, <webredaktion@thm.de>
  * @copyright   2025 TH Mittelhessen
  * @license     GNU GPL v.3
  * @link        www.thm.de
  */
 
-namespace THM\Modules\Contact\Site\Dispatcher;
+namespace THM\Module\Contact\Site\Dispatcher;
 
 defined('_JEXEC') or die;
 
-use Exception;
-use Joomla\CMS\{Dispatcher\ModuleDispatcher, Helper\ModuleHelper};
+use Joomla\CMS\{Application\SiteApplication, Dispatcher\AbstractModuleDispatcher};
+use Joomla\CMS\Helper\{HelperFactoryAwareInterface, HelperFactoryAwareTrait};
 use Joomla\Registry\Registry;
-use THM\Modules\Contact\Site\Helper\ContactHelper as Helper;
+use THM\Module\Contact\Site\Helper\ContactHelper as Helper;
 
-class Dispatcher extends ModuleDispatcher
+class Dispatcher extends AbstractModuleDispatcher implements HelperFactoryAwareInterface
 {
-    /** @inheritDoc
-     * @throws Exception on uninstantiated calls for core classes
+    use HelperFactoryAwareTrait;
+
+    /**
+     * Returns the layout data.
+     *
+     * @return  array
+     *
+     * @since   4.4.0
      */
-    public function dispatch(): void
+    protected function getLayoutData(): array
     {
-        $resourceID = $this->input->getInt('id');
-        $view       = $this->input->getCmd('view');
+        $layoutData = parent::getLayoutData();
 
-        if ($this->input->getCmd('option') !== 'com_content' or !in_array($view, ['article', 'category']) or !$resourceID) {
-            return;
+        if (empty($layoutData['app']) or empty($layoutData['input'])) {
+            return $layoutData;
         }
 
-        $contacts = [];
-        $helper   = new Helper($this->app);
-        $params   = new Registry($this->module->params);
-        $suffix   = (string) $params->get('suffix');
-        $pattern  = '({contact' . $suffix . '\s(.*?)})';
+        /** @var Registry $appData */
+        $appData = $layoutData['app'];
+        /** @var SiteApplication $appData */
+        $inputData = $layoutData['input'];
+        $context   = strtolower($inputData->get('option', '') . '.' . $inputData->get('view', ''));
 
-        if ($view === 'article') {
-            $text = html_entity_decode($helper->articleText($resourceID));
-            preg_match($pattern, $text, $matches);
-
-            if (!$matches or !$contacts = $helper->contacts($matches)) {
-                $text = html_entity_decode($helper->categoryText($resourceID, true));
-                preg_match($pattern, $text, $matches);
-
-                if (!$matches or !$contacts = $helper->contacts($matches)) {
-                    return;
-                }
-            }
-        }
-        else {
-            $text = html_entity_decode($helper->categoryText($resourceID));
-            preg_match($pattern, $text, $matches);
-
-            if (!$matches or !$contacts = $helper->contacts($matches)) {
-                return;
+        if (in_array($context, ['com_content.article', 'com_content.category'])) {
+            /** @var Helper $helper */
+            $helper = $this->getHelperFactory()->getHelper('ContactHelper');
+            if ($contacts = $helper->contacts($appData)) {
+                $layoutData['contacts'] = $contacts;
             }
         }
 
-        $moduleclass_sfx = htmlspecialchars($suffix);
-        require ModuleHelper::getLayoutPath('mod_contact', $params->get('layout', 'default'));
+        return $layoutData;
     }
 }
