@@ -19,21 +19,25 @@ return new class () implements InstallerScriptInterface {
     private string $minimumJoomla = '5.0.0';
     private string $minimumPhp = '8.1.0';
 
+    /** @inheritDoc */
     public function install(InstallerAdapter $adapter): bool
     {
         return true;
     }
 
+    /** @inheritDoc */
     public function update(InstallerAdapter $adapter): bool
     {
         return true;
     }
 
+    /** @inheritDoc */
     public function uninstall(InstallerAdapter $adapter): bool
     {
         return true;
     }
 
+    /** @inheritDoc */
     public function preflight(string $type, InstallerAdapter $adapter): bool
     {
         if (version_compare(PHP_VERSION, $this->minimumPhp, '<')) {
@@ -50,11 +54,15 @@ return new class () implements InstallerScriptInterface {
         return true;
     }
 
+    /** @inheritDoc */
     public function postflight(string $type, InstallerAdapter $adapter): bool
     {
-        // move all the module assignments from thmcontact here
-        // string replace uses of defaultmehrereplaetze with multiple
-        // string replace uses of defaultmitinfo with moreinfo
-        return true;
+        $db    = $adapter->getDatabase();
+        $query = $db->getQuery(true);
+        $query->update($db->qn('#__modules'))
+            ->set($db->qn('module') . ' = ' . $db->q('mod_contact'))
+            ->where($db->qn('module') . ' = ' . $db->q('mod_thmcontact'));
+        $db->setQuery($query);
+        return $db->execute();
     }
 };
